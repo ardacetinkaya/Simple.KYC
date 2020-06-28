@@ -1,0 +1,124 @@
+﻿@page "/"
+@inherits IndexBase
+@inject IJSRuntime JsRuntime
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@inject Simple.KYC.Services.FaceDetectionClient FaceDetectionClient
+<h1>Know your customer...</h1>
+
+
+<div class="container">
+    <div class="row">
+
+    </div>
+
+    <div class="row p-2">
+        <div class="col-12">
+            <EditForm Model="@Identity" OnValidSubmit="(async () => await Submit())">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" @bind-value="Identity.Name" placeholder="Enter name" id="name">
+                    <ValidationMessage For="@(() => Identity.Name)" />
+                </div>
+                <div class="form-group">
+                    <label for="preview">Photo:</label>
+                    <img id="preview" src="/images/who.png" width="100px" />
+                    <input type="file" class="form-control" placeholder="Enter name" id="photo" @onchange="(async ()=> await Upload())">
+                </div>
+                <div class="btn-group float-right clearfix">
+
+                    <button type="reset" class="btn btn-secondary">Clear</button>
+                    @if (IsPhotoUploadInProgress || IsSearchInProgress)
+                    {
+                        <button type="submit" class="btn btn-primary" disabled>Processing...</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    }
+
+                </div>
+            </EditForm>
+
+            @if (IsSearchInProgress)
+            {
+                <span>Searching...</span>
+            }
+            else
+            {
+                if (Users != null)
+                {
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Is Verified</th>
+                                <th>Screen name</th>
+                                <th>Name</th>
+                                <th>Photo Confidence</th>
+                                <th>Is Photo Identical</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Users)
+                            {
+                                <tr>
+                                    <td><a href="@user.ProfilePhoto" target="_blank"><img src="@user.ProfilePhoto" class="rounded-circle" width="100px" alt=""></a></td>
+                                    <td>@user.IsVerified.ToString()</td>
+                                    <td><a href="https://twitter.com/@user.ScreenName" target="_blank">@@@user.ScreenName</a></td>
+                                    <td class="w-50">
+                                        <strong>@user.Name</strong>
+                                        <p>@user.Info</p>
+                                    </td>
+
+                                    @if (user.Confidence > 0.9)
+                                    {
+                                        <td class="bg-success">@user.Confidence</td>
+                                    }
+                                    else if (user.Confidence > 0.85)
+                                    {
+                                        <td class="bg-warning">@user.Confidence</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@user.Confidence</td>
+                                    }
+                                    @if (user.IsIdentical)
+                                    {
+                                        <td class="bg-success">@user.IsIdentical</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@user.IsIdentical</td>
+                                    }
+
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+                }
+            }
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
