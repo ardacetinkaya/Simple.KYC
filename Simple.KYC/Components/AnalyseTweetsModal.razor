@@ -1,0 +1,45 @@
+﻿@inherits AnalyseTweetsModalBase
+@if (IsVisible)
+{
+    <div class="modal fade show" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" style="display: block;" aria-modal="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">@Title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="CloseModal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr class="small">
+                                <th>Date</th>
+                                <th>Key Phrases</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var tweet in Tweets)
+                            {
+                                <tr class="small">
+                                    <td>@tweet.Date.ToShortDateString()</td>
+                                    <td><a href="@tweet.URL">@tweet.Text</a></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@code {
+
+}

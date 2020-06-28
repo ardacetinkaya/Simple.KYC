@@ -29,6 +29,8 @@ namespace Simple.KYC
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddScoped<TextAnalyseClient>();
+            services.AddScoped<AnalyseTweets>();
             services.AddTransient<FaceDetectionClient>();
         }
 

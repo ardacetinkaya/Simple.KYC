@@ -19,6 +19,7 @@
             _faceClient = new FaceClient(new ApiKeyServiceClientCredentials(_configuration["FACE_KEY"]));
             _faceClient.Endpoint = _configuration["FACE_ENDPOINT"];
         }
+
         public async Task<IEnumerable<string>> DetectFace(Stream faceStream)
         {
             List<string> result = new List<string>();

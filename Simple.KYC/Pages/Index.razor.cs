@@ -1,14 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Azure.CognitiveServices.Vision.Face;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using Microsoft.Rest;
+using Simple.KYC.Components;
 using Simple.KYC.Data;
 using Simple.KYC.Services;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Tweetinvi;
@@ -24,6 +21,7 @@ namespace Simple.KYC.Pages
         public bool IsPhotoUploadInProgress;
         [Inject] protected IJSRuntime JSRuntime { get; set; }
         [Inject] protected IConfiguration Configuration { get; set; }
+        [Inject] protected AnalyseTweets AnalyseTweetsService { get; set; }
         [Inject] protected FaceDetectionClient FaceDetectionClient { get; set; }
 
         protected override Task OnInitializedAsync()
@@ -34,7 +32,7 @@ namespace Simple.KYC.Pages
         protected async Task Upload()
         {
             IsPhotoUploadInProgress = true;
-            Tweetinvi.Auth.SetUserCredentials(Configuration["TWITTER_CONSUMER_KEY"], Configuration["TWITTER_CONSUMER_SECRET"],
+            Auth.SetUserCredentials(Configuration["TWITTER_CONSUMER_KEY"], Configuration["TWITTER_CONSUMER_SECRET"],
                 Configuration["TWITTER_ACCESS_TOKEN"], Configuration["TWITTER_ACCESS_TOKEN_SECRET"]);
 
             var uploadResult = await JSRuntime.InvokeAsync<bool>("UploadPhoto", DotNetObjectReference.Create(this));
@@ -45,10 +43,10 @@ namespace Simple.KYC.Pages
             if (!string.IsNullOrEmpty(Identity.Name))
             {
                 IsSearchInProgress = true;
-                Tweetinvi.Auth.SetUserCredentials(Configuration["TWITTER_CONSUMER_KEY"], Configuration["TWITTER_CONSUMER_SECRET"],
+                Auth.SetUserCredentials(Configuration["TWITTER_CONSUMER_KEY"], Configuration["TWITTER_CONSUMER_SECRET"],
                     Configuration["TWITTER_ACCESS_TOKEN"], Configuration["TWITTER_ACCESS_TOKEN_SECRET"]);
 
-                var searchResults = await Tweetinvi.SearchAsync.SearchUsers(Identity.Name);
+                var searchResults = await SearchAsync.SearchUsers(Identity.Name);
 
                 if (searchResults != null && searchResults.Any())
                 {
@@ -74,6 +72,7 @@ namespace Simple.KYC.Pages
                        
                             Users.Add(new TwitterUser()
                             {
+                                Id = user.Id,
                                 Name = user.Name,
                                 ScreenName = user.ScreenName,
                                 Info = user.Description,
@@ -93,6 +92,11 @@ namespace Simple.KYC.Pages
 
         }
 
+        protected void AnaylzeTweets(long userId)
+        {
+            AnalyseTweetsService.Show("Tweets",userId);
+            
+        }
         [JSInvokable]
         public bool SetFaceID(List<string> faceIDs)
         {
